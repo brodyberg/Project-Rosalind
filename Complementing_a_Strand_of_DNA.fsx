@@ -15,4 +15,4 @@ let stringToDNAComplement (str:string) =
 |> stringToDNAComplement
 |> List.ofSeq
 |> List.fold (fun acc item -> item::acc) []
-|> List.iter (fun item -> printf "%c" item)
+|> List.iter (printf "%c")
