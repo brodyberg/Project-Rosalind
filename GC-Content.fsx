@@ -31,7 +31,12 @@ let fastaName (items:seq<char>) =
 // entry will be simply one or two lines only
 // but could be any number of lines
 
-let (|FastaName|_|) (str:string) = None
+"abc".Substring(1, ("abc".Length - 1))
+
+let (|FastaName|_|) (str:string) = 
+    if isCharChevron (str.[0]) 
+    then Some(str.Substring(1, (str.Length - 1)))
+    else None
 
 let testItem = ">Rosalind_6404"
 
@@ -39,7 +44,6 @@ match testItem with
 | FastaName(name) -> { Name = name; DNA = System.String.Empty; }
 | _ -> { Name = "AddingToPrevious"; DNA = testItem; }
     
-
 type Fasta = { Name:string; DNA:string; }
 
 let fastaFromString (str:string) = { Name = "foo"; DNA = "acgt"; }
