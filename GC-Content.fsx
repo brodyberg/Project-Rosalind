@@ -33,6 +33,8 @@ let fastaName (items:seq<char>) =
 
 type Fasta = { Name:string; DNA:string; }
 
+let fastaFromString (str:string) = { Name = "foo"; DNA = "acgt"; }
+
 ">Rosalind_6404
 CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
 TCCCACTAATAATTCTGAGG
@@ -42,6 +44,11 @@ ATATCCATTTGTCAGCAGACACGC
 >Rosalind_0808
 CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
 TGGGAACCTGCGGGCAGTAGGTGGAAT".Split([|'\n'|])
+|> Seq.fold (fun acc item -> (fastaFromString item)::acc)
+    []
+
+
+
 |> Seq.iter (fun item -> printfn "line: %s" item)
 
 
