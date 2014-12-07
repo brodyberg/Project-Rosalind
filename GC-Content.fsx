@@ -31,6 +31,15 @@ let fastaName (items:seq<char>) =
 // entry will be simply one or two lines only
 // but could be any number of lines
 
+let (|FastaName|_|) (str:string) = None
+
+let testItem = ">Rosalind_6404"
+
+match testItem with
+| FastaName(name) -> { Name = name; DNA = System.String.Empty; }
+| _ -> { Name = "AddingToPrevious"; DNA = testItem; }
+    
+
 type Fasta = { Name:string; DNA:string; }
 
 let fastaFromString (str:string) = { Name = "foo"; DNA = "acgt"; }
@@ -44,6 +53,9 @@ ATATCCATTTGTCAGCAGACACGC
 >Rosalind_0808
 CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
 TGGGAACCTGCGGGCAGTAGGTGGAAT".Split([|'\n'|])
+// state machine: 
+// if this line is a name, we make a new fasta
+// if this line is data, we add this data to the last fasta dna
 |> Seq.fold (fun acc item -> (fastaFromString item)::acc)
     []
 
