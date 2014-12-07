@@ -1,0 +1,59 @@
+//>Rosalind_6404
+//CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
+//TCCCACTAATAATTCTGAGG
+//>Rosalind_5959
+//CCATCGGTAGCGCATCCTTAGTCCAATTAAGTCCCTATCCAGGCGCTCCGCCGAAGGTCT
+//ATATCCATTTGTCAGCAGACACGC
+//>Rosalind_0808
+//CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
+//TGGGAACCTGCGGGCAGTAGGTGGAAT
+
+// this is a MAX() 
+// read through list of FASTA format strings and store
+// max as name and content percentage
+
+
+// so roll through that list and make FASTA records
+
+let isCharThis (goal:char) (item:char) = if item = goal then true else false
+let isCharChevron item = isCharThis '>' item
+let isCharNewline item = isCharThis '\n' item
+
+let fastaName (items:seq<char>) = 
+    items
+    |> Seq.fold (fun acc item -> item::acc) ""
+
+
+"".Split(['\n'])   
+
+// we need to fold into a list of FASTA entries
+// we can't map because we can't guarantee any fasta 
+// entry will be simply one or two lines only
+// but could be any number of lines
+
+type Fasta = { Name:string; DNA:string; }
+
+">Rosalind_6404
+CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
+TCCCACTAATAATTCTGAGG
+>Rosalind_5959
+CCATCGGTAGCGCATCCTTAGTCCAATTAAGTCCCTATCCAGGCGCTCCGCCGAAGGTCT
+ATATCCATTTGTCAGCAGACACGC
+>Rosalind_0808
+CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
+TGGGAACCTGCGGGCAGTAGGTGGAAT".Split([|'\n'|])
+|> Seq.iter (fun item -> printfn "line: %s" item)
+
+
+|> Seq.iter (fun item -> 
+printfn "%c" item) 
+
+
+
+let lineStartsWith (item:char) = ""
+
+
+
+// column max is 80, so we only make a new set info on >
+
+// the GC-content of "AGCTATAG" is 37.5%
