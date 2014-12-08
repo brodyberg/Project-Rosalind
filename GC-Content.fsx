@@ -3,21 +3,25 @@ module Fasta =
     type internal Content = { C_or_G:double; Other:double; }
 
     type Fasta = 
-        { Name:string; DNA:string; }
-        static member print (fasta:Fasta) = printfn "Name: %s DNA: %s" fasta.Name fasta.DNA
-        static member GC_Content (fasta:Fasta) = 
+        { Name:string; DNA:string; GC_Content:double; }
+        static member print (fasta:Fasta) = printfn "%s" (sprintf "%s\n%f" fasta.Name fasta.GC_Content)
+        static member CalculateGCContent (fasta:Fasta) = 
             let emptyContent = { C_or_G = 0.0; Other = 0.0; }
         
             let calculate content = 
                 (content.C_or_G / (content.C_or_G + content.Other)) * 100.0
 
+            let addContentToFasta fasta (content:double) = 
+                { fasta with GC_Content = content; }
+                
             fasta.DNA
             |> Seq.fold (fun acc item ->
                 match item with
                 | 'C' | 'G' -> { acc with Content.C_or_G = acc.C_or_G + 1.0; }
                 | _ -> { acc with Content.Other = acc.Other + 1.0; })
                 emptyContent
-            |> calculate
+            |> calculate 
+            |> addContentToFasta fasta
     
     let strToFastaSeq (str:string) = 
 
@@ -27,7 +31,8 @@ module Fasta =
         let hasContent (str:string) = if str = System.String.Empty then false else true
             
         let emptyFasta = { Name = System.String.Empty; 
-                           DNA = System.String.Empty; }
+                           DNA = System.String.Empty; 
+                           GC_Content = 0.0; }
         
         let entryToFasta (lines:string []) =
             lines
@@ -43,9 +48,6 @@ module Fasta =
         |> Seq.map splitOnNewLine
         |> Seq.map entryToFasta
 
-let printCalculation calculation = 
-    printfn "%f%%" calculation
-
 ">Rosalind_6404
 CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
 TCCCACTAATAATTCTGAGG
@@ -56,23 +58,11 @@ ATATCCATTTGTCAGCAGACACGC
 CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
 TGGGAACCTGCGGGCAGTAGGTGGAAT"
 |> Fasta.strToFastaSeq
-|> Seq.map (fun fasta -> Fasta.Fasta.GC_Content fasta)
-|> Seq.iter (fun gc -> printCalculation gc)
+|> Seq.map Fasta.Fasta.CalculateGCContent
+|> Seq.maxBy (fun fasta -> fasta.GC_Content)
+|> Fasta.Fasta.print
 
 ">Rosalind_6404
 AGCTATAG"
 // GC content is percentage of the symbols that are C or G
 // GC-content of "AGCTATAG" is 37.5%
-
-
-
-
-
-
-
-
-
-
-
-
-
