@@ -10,25 +10,24 @@ module Fasta =
         let split (splitter:char []) (str:string) = str.Split(splitter)
         let splitOnNewLine (str:string) = split [|'\n'|] str
         let splitOnChevron (str:string) = split [|'>'|] str
-        
+        let hasContent (str:string) = if str = System.String.Empty then false else true
+            
         let emptyFasta = { Name = System.String.Empty; 
                            DNA = System.String.Empty; }
         
-        let entryToFasta (items:string []) =
-            items
-            |> Seq.fold (fun acc item -> 
-                match acc.Name with
-                | "" -> { acc with Name = item; }
-                | _ -> { acc with DNA = acc.DNA + item.Trim(); })
+        let entryToFasta (lines:string []) =
+            lines
+            |> Seq.fold (fun fasta line -> 
+                match fasta.Name with
+                | "" -> { fasta with Name = line; }
+                | _ -> { fasta with DNA = fasta.DNA + line.Trim(); })
                 emptyFasta
         
-        let hasContent (str:string) = if str = System.String.Empty then false else true
-    
         str
         |> splitOnChevron
         |> Seq.filter hasContent
         |> Seq.map splitOnNewLine
-        |> Seq.map (fun item -> entryToFasta item)
+        |> Seq.map entryToFasta
     
 ">Rosalind_6404
 CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
