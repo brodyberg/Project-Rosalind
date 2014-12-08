@@ -1,52 +1,48 @@
-//>Rosalind_6404
-//CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
-//TCCCACTAATAATTCTGAGG
-//>Rosalind_5959
-//CCATCGGTAGCGCATCCTTAGTCCAATTAAGTCCCTATCCAGGCGCTCCGCCGAAGGTCT
-//ATATCCATTTGTCAGCAGACACGC
-//>Rosalind_0808
-//CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
-//TGGGAACCTGCGGGCAGTAGGTGGAAT
+type Fasta = 
+    { Name:string; DNA:string; }
+    static member print (fasta:Fasta) = printfn "Name: %s DNA: %s" fasta.Name fasta.DNA
 
-// this is a MAX() 
-// read through list of FASTA format strings and store
-// max as name and content percentage
+//Fasta.print { Name = "foo"; DNA = "bar"; }
 
+//let isCharThis (goal:char) (item:char) = if item = goal then true else false
+//let isCharChevron item = isCharThis '>' item
+//let isCharNewline item = isCharThis '\n' item
 
-// so roll through that list and make FASTA records
+let split (splitter:char []) (str:string) = str.Split(splitter)
+let splitOnNewLine (str:string) = split [|'\n'|] str
+let splitOnChevron (str:string) = split [|'>'|] str
 
-let isCharThis (goal:char) (item:char) = if item = goal then true else false
-let isCharChevron item = isCharThis '>' item
-let isCharNewline item = isCharThis '\n' item
+let emptyFasta = { Name = System.String.Empty; 
+                   DNA = System.String.Empty; }
 
-let fastaName (items:seq<char>) = 
+//let (|FastaName|_|) (str:string) = 
+////    match hasContent str with
+////    | true -> 
+//    if isCharChevron (str.[0]) 
+//    then Some(str.Substring(1, (str.Length - 1)))
+//    else None
+////    | false -> None
+
+let entryToFasta (items:string []) =
     items
-    |> Seq.fold (fun acc item -> item::acc) ""
+    |> Seq.fold (fun acc item -> 
+        match acc.Name with
+        | "" -> { acc with Name = item; }
+        | _ -> { acc with DNA = acc.DNA + item.Trim(); })
+        emptyFasta
 
+//let entryToFasta (items:string []) = 
+//    items
+//    |> Seq.fold (fun acc item -> 
+//        match item with
+//        | "" -> acc
+//        | FastaName(name) -> { acc with Name = name; }
+//        | _ -> { acc with DNA = acc.DNA + item; }) 
+//        emptyFasta
 
-"".Split(['\n'])   
+let hasContent (str:string) = if str = System.String.Empty then false else true
 
-// we need to fold into a list of FASTA entries
-// we can't map because we can't guarantee any fasta 
-// entry will be simply one or two lines only
-// but could be any number of lines
-
-"abc".Substring(1, ("abc".Length - 1))
-
-let (|FastaName|_|) (str:string) = 
-    if isCharChevron (str.[0]) 
-    then Some(str.Substring(1, (str.Length - 1)))
-    else None
-
-let testItem = ">Rosalind_6404"
-
-match testItem with
-| FastaName(name) -> { Name = name; DNA = System.String.Empty; }
-| _ -> { Name = "AddingToPrevious"; DNA = testItem; }
-    
-type Fasta = { Name:string; DNA:string; }
-
-let fastaFromString (str:string) = { Name = "foo"; DNA = "acgt"; }
+//let fastaHasContent fasta = if fasta.Name = System.String.Empty then false else true
 
 ">Rosalind_6404
 CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
@@ -56,27 +52,25 @@ CCATCGGTAGCGCATCCTTAGTCCAATTAAGTCCCTATCCAGGCGCTCCGCCGAAGGTCT
 ATATCCATTTGTCAGCAGACACGC
 >Rosalind_0808
 CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
-TGGGAACCTGCGGGCAGTAGGTGGAAT".Split([|'\n'|])
-// state machine: 
-// if this line is a name, we make a new fasta
-// if this line is data, we add this data to the last fasta dna
-|> Seq.fold (fun acc item -> (fastaFromString item)::acc)
-    []
+TGGGAACCTGCGGGCAGTAGGTGGAAT"
+|> splitOnChevron
+|> Seq.filter hasContent
+|> Seq.map splitOnNewLine
+|> Seq.map (fun item -> entryToFasta item)
+//|> Seq.filter fastaHasContent
+|> Seq.iter (fun fasta -> Fasta.print fasta)
 
 
 
-|> Seq.iter (fun item -> printfn "line: %s" item)
-
-
-|> Seq.iter (fun item -> 
-printfn "%c" item) 
 
 
 
-let lineStartsWith (item:char) = ""
 
 
 
-// column max is 80, so we only make a new set info on >
 
-// the GC-content of "AGCTATAG" is 37.5%
+
+
+
+
+
