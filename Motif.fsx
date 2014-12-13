@@ -1,24 +1,25 @@
-//s: GATATATGCATATACTT
-//t: ATAT
+let findPatternStarts (pattern:string) (str:string) = 
 
-//output: 2 4 10
+    let patternPresent i item = 
+        let patternStart = pattern.[0]
 
-// we take s, we take t
-// we iterate one char at a time through s
-// match next n (n = length of t) in s against t
+        let roomForMatch i =
+            (i + pattern.Length) < str.Length
 
-let s = "GATATATGCATATACTT"
-let t = "ATAT"
+        let foundPattern i =
+            str.Substring(i, pattern.Length) = pattern
 
-"GATATATGCATATACTT"
-|> Seq.iteri (fun i item -> 
-    printfn "i: %d" i
+        item = patternStart && 
+            roomForMatch i  &&
+            foundPattern i
 
-    if item = 'A' then
-        if (i < 10) then
-            let sub = s.Substring(i, t.Length)
-            printfn "sub: %s" sub
-        
-            if sub = t then printfn "MATCH: %d" i)
+    str
+    |> Seq.iteri (fun i item -> 
+        if patternPresent i item then printf "%d " (i + 1))
 
-// NOTE: answer is 1-based, not zero-based
+let pattern = "AACAGCTAA"
+let str = "AACAGCTCGTCAAACAGCTAACAGCTAACAGCTACAACAGCTCCTTCCTGGAACAGCTATAACAGCTCTTGAATAATAGTCAACAGCTGCTAACAGCTAACAGCTCCAACAGCTAACAGCTAAACAGCTGCCTCTTAAACAGCTAACAGCTAACAGCTAACAGCTAACAGCTGAACAGCTTGCAACAGCTTATACTGGAACAGCTGAACAGCTCAGATACAACAGCTTAACAGCTGTTACTCAAACAGCTAACAGCTAAGAACAGCTTTTGAACAGCTGTAACAGCTGTAACAGCTAAACAGCTGAGCGAACAGCTCAACAGCTCAAAACAGCTTCGCATTAACAGCTCTAACAGCTGAACAGCTTGTTAAACAGCTAACAGCTGAACAGCTCTACCAGAACAGCTATGAACAGCTCGTGGAACAGCTAACAGCTATAAACAGCTAAACAGCTATCCGGAACAGCTCGAACAGCTAACAGCTAACAGCTAAACAGCTAACAGCTCTGAACAGCTGAAAGCAACAGCTAAACAGCTAACAGCTAACAGCTCACTGGAAACAGCTTGTCAAACAGCTTCAACAGCTGAACAGCTCCATAACAGCTAACAGCTGAGGAACAGCTGCAACAGCTGCGGGAACAGCTCCAAACAGCTACCTAACAGCTACAACAGCTCCAACAGCTCAACAGCTTCTTAACAGCTAAACAGCTGGTCCGTACGATAACAGCTACAAACAGCTTTTAACAGCTAAACAGCTAACAGCTCGGCGGGGAACAGCTTAACAGCTAACAGCTAACAGCTAAACAGCTCCAACAGCTCTTGAGCGATCGAACAGCTGGAACAGCT"
+
+findPatternStarts pattern str
+
+// 13 20 92 108 115 138 145 152 159 244 251 290 371 422 439 469 476 483 491 521 529 536 597 694 741 749 779 786 793
