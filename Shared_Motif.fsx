@@ -1,6 +1,26 @@
 ﻿#load "Fasta.fs"
 #load "FastaCorpora.fs"
 
+let dummySecond = 
+    ">Rosalind_2970
+    GCGAGGTTCGGCATAATAGCAGATGTCGCAAAGGGTAAGTAAACGTTGACGGGGGCGTCC
+    CCTCAGCGTAGTAATATTTACCCTTATAGTCAATCAGACAGACGTATAATTACCGAAGGA
+    CTTAAGACCTCGACATTCGAAATGCAAGCTCGTAGGACCAACCGGCGTCTGTGCTATTTG
+    ATATAGTCTTGTTGCTATAGGGGTCCTGTCCCGACATCCATGGCCCGCTACCCATGCCCA
+    TTTCTCTACGCAGGATGGACTCCGGTCTCATTCCTAAAACGCTACGTACAAATTTCATTA
+    AGCCAGCGCTTAATGAATGCTGTGAAATACGCTAGGGCAGAGTCTGAGGGCAAGGCGGGG
+    GCAGAAGCGCAATGTACGATGACAGGGTGAGCGCCGCGCGGGTATATCATGCTTCAACCA
+    GACCCCCCGATCTCTGCTGTTCGGGCAATCCGCGGCATAATGGTGAGCTACGAGAAATCC
+    CTCCGCATGTTCAACGTCACATCACTGCTCAATCGGTTTTCGCCATAAACCATTGCGTAG
+    TTTAAGGATCACCAGAGGCGACCCATCGAACGTTCGTGGGAGTATCGTTAAAGTACGAAT
+    AGCCCGCAGAGCCCCACGACCGAGGTATCACTCGTACAATCCCCGTGGTTCGGCAAGCTT
+    ACACAATTATAGACTGCGTTCGCCGATATTTTTTTCGAGTGAACAGTAGCCCTAGTTGTC
+    CACGTTACCTGAACCTGGCTGCAACGGCCCTGATCTTCGGCCAGTGGACCCGTAAATATC
+    AGTGAGCCCAGAGCTCGCATAGCTGACTTACAGCGGGTTGGGGGGGGATTGTAAGGGGCC
+    TGAGGCATACAGTTATTGCTGTGTTAGCAACCCCGTCGTATTCCGGAGCATAAAGTGACT
+    CGCGTCGTGTCGTTCATCTTCTGGTATCACCCGGCGCGTATCATAAATACGACGATTCAA
+    ATCAGGAAAAATAAAGACCGCAAATAATGGAGAAGTGGCC"
+
 open Rosalind
 
 let printBoth head tail = 
@@ -10,6 +30,44 @@ FastaCorpora.exampleLong
 |> Fasta.strToFastaSeq
 |> List.ofSeq
 |> (fun lst -> (lst.Head, lst.Tail))
+
+let (first, rest) = 
+    FastaCorpora.exampleLong
+    |> Fasta.strToFastaSeq
+    |> List.ofSeq
+    |> (fun lst -> (lst.Head, lst.Tail))
+
+let dummyFasta =
+    dummySecond
+    |> Fasta.strToFastaSeq
+    |> Seq.head
+
+let (_,_,resultMap) =
+    Seq.fold2
+        (fun (acc:int * int * Map<int * int, int>) left right -> 
+            let (x, y, map) = acc
+
+            if left = right 
+            then (x + 1, y + 1, map.Add((x, y), 1))
+            else (x + 1, y + 1, map))
+        (0, 0, Map.empty)
+        first.DNA
+        dummyFasta.DNA
+
+resultMap.Count    
+//first.DNA
+//Seq.fold2 (fun acc left right -> acc::(left + right)) [] first.DNA first.DNA 
+// Seq.fold2 (fun acc left right -> left + acc) [] (List.ofSeq first.DNA) first.DNA 
+
+
+
+Seq.fold2 
+    (fun acc left right -> acc + (left + right)) 
+    "" 
+    [|"f"; "o"; "o"; |] 
+    [|"b"; "a"; "r"; |]
+
+|> Seq.iter (fun item -> printfn "blerg: %c" item) 
 
 // dynamic programming in a functional manner
 
