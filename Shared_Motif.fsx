@@ -1,16 +1,12 @@
 ﻿#load "Fasta.fs"
+#load "FastaCorpora.fs"
 
 open Rosalind
 
 let printBoth head tail = 
     printfn "head: %A tail: %A" head tail
 
-">Rosalind_1
-GATTACA
->Rosalind_2
-TAGACCA
->Rosalind_3
-ATACA"
+FastaCorpora.exampleLong
 |> Fasta.strToFastaSeq
 |> List.ofSeq
 |> (fun lst -> (lst.Head, lst.Tail))
@@ -18,7 +14,6 @@ ATACA"
 // dynamic programming in a functional manner
 
 // arrays are mutable!?
-
 let x = [| 0; 2; 1; |]
 x.[0] <- 4
 
@@ -46,6 +41,22 @@ Array2D.zeroCreate<int> 1000 1000
 // so our accumulator will be: 
 Array2D.zeroCreate<int> 1000 1000
 
+let x = Map.empty
+x.Add("key", "value")
+x
+
+let y = x.Add("key", "value")
+let z = y.Add("key", "value1")
+
+let u = Map.empty
+let v = u.Add((0,0), 0)
+let w = v.Add((0,1), 0)
+w.[(0,0)]
+let r = w.Add((0,2), 2)
+r.[(0,2)]
+
+// how would you iterate through this thing?
+// iteri?
 
 // |> (fun (head, tail) -> printBoth head tail)
 
