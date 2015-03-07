@@ -42,9 +42,6 @@ let dummyFasta =
     |> Fasta.strToFastaSeq
     |> Seq.head
 
-// we don't have to initialize anything in our map
-// questions: 
-
 type Tracker = 
     { Index: int; 
       Max: int;
@@ -63,50 +60,6 @@ let test1 = "abbcc"
 let test2 = "dbbcc"
 
 let substringSet = Set.empty
-// we'll carry substringSet through some kind of fold via intersection
-
-// why empty? first row always empty?
-// why 25 rows? just first row, not actual grid
-let printGrid1 (map:Map<(int * int), int>) =
-    printfn "printGrid"
-    
-    seq { for x in 0 .. 5 -> 
-            printfn "here: %d" x
-            seq { for y in 0 .. 5 -> 
-                    printfn "here: %d" y
-                    let key = (x, y)
-
-                    if map.ContainsKey key
-                    then map.[key]
-                    else 0 }
-            |> Seq.iter
-                (fun item -> printf "%d " item)
-            printfn ""
-            x
-    }
-
-//let printGrid2 (map:Map<(int * int), int>) =
-//    seq { for y in 0 .. 5 -> 
-////            printfn "here: %d" y
-//            let key = (0, y)
-//
-//            if map.ContainsKey key
-//            then map.[key]
-//            else 0 }
-//    |> Seq.iter
-//        (fun item -> printf "%d " item)
-//    printfn ""
-
-
-//    seq { for y in 0 .. 5 -> 
-//            let key = (0, y)
-//
-//            if map.ContainsKey key
-//            then map.[key]
-//            else 0 }
-//    |> Seq.iter
-//        (fun item -> printf "%d " item)
-//    printfn ""
 
 let printGrid (map:Map<(int * int), int>) =
     printfn "----------"
@@ -122,26 +75,25 @@ let printGrid (map:Map<(int * int), int>) =
             |> Seq.iter
                 (fun item -> printf "%d " item)
             printfn ">")
-//    printfn "----------"
 
-let compare acc itemOuter itemInner =
+let compare tracker left right =
     let interimTracker = 
 
-        if itemOuter = itemInner 
+        if left = right 
         then 
-            let map = acc.Map
+            let map = tracker.Map
             let originalValue = 
-                let key = (acc.x - 1, acc.y - 1)
+                let key = (tracker.x - 1, tracker.y - 1)
 
                 if map.ContainsKey(key)
                 then map.[key]
                 else 0
                             
-            let map' = map.Add((acc.x, acc.y), originalValue + 1); 
+            let map' = map.Add((tracker.x, tracker.y), originalValue + 1); 
             
-            { acc with Tracker.Map = map'; }
+            { tracker with Tracker.Map = map'; }
         else
-            acc
+            tracker
 
     { interimTracker with Tracker.x = interimTracker.x + 1; }
 
@@ -149,13 +101,16 @@ let compareTwo left right =
     left
     |> Seq.fold
         (fun accOuter outerItem ->
-            right
-            |> Seq.fold
-                (fun accInner innerItem ->
-                    printGrid accInner.Map |> ignore
-                    compare accInner outerItem innerItem)
-                accOuter
-        )
+            printfn "outerItem: %c" outerItem
+            let interimResult = 
+                right
+                |> Seq.fold
+                    (fun accInner innerItem ->
+                        printfn "innerItem: %c" innerItem
+                        printGrid accInner.Map |> ignore
+                        compare accInner outerItem innerItem)
+                    { accOuter with Tracker.x = 0; }
+            { interimResult with Tracker.y = interimResult.y + 1; })
         trackerDefault
 
 let result = compareTwo test1 test2
