@@ -106,7 +106,9 @@ let compareTwo left (right:string) =
                                 let start = tracker'.x
                                 let end' = tracker'.Grid.[(tracker'.x,tracker'.y)]
                             
-                                let theSlice = right.[start..end']
+                                let theSlice = right.[(start - end')..end']
+
+                                printfn "slicing %s from here %d to here %d which is: %s" right start end' theSlice
 
                                 { tracker' with Tracker.Substrings = (tracker'.Substrings.Add theSlice) }
                             else
