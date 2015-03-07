@@ -88,11 +88,14 @@ let compare tracker left right =
                 if map.ContainsKey(key)
                 then map.[key]
                 else 0
-                            
+
+//            printfn "match: %c %c %d x: %d y: %d" left right originalValue tracker.x tracker.y
+                                
             let map' = map.Add((tracker.x, tracker.y), originalValue + 1); 
             
             { tracker with Tracker.Map = map'; }
         else
+//            printfn "mismatch: %c %c" left right
             tracker
 
     { interimTracker with Tracker.x = interimTracker.x + 1; }
@@ -101,20 +104,20 @@ let compareTwo left right =
     left
     |> Seq.fold
         (fun accOuter outerItem ->
-            printfn "outerItem: %c" outerItem
+//            printfn "outerItem: %c" outerItem
             let interimResult = 
                 right
                 |> Seq.fold
                     (fun accInner innerItem ->
-                        printfn "innerItem: %c" innerItem
-                        printGrid accInner.Map |> ignore
+//                        printfn "innerItem: %c" innerItem
+//                        printGrid accInner.Map |> ignore
                         compare accInner outerItem innerItem)
                     { accOuter with Tracker.x = 0; }
+//            printGrid interimResult.Map |> ignore
             { interimResult with Tracker.y = interimResult.y + 1; })
         trackerDefault
 
 let result = compareTwo test1 test2
 result.Map.Count
 
-result.Map.[(6,0)]
-
+printGrid result.Map
