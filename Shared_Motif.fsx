@@ -42,6 +42,266 @@ let dummyFasta =
     |> Fasta.strToFastaSeq
     |> Seq.head
 
+// we don't have to initialize anything in our map
+// questions: 
+
+type Tracker = 
+    { Index: int; 
+      Max: int;
+      x: int;
+      y: int;
+      Map: Map<int * int, int>; }
+
+let trackerDefault = 
+    { Tracker.Index = 0;
+      Tracker.Max = 0;
+      Tracker.x = 0;
+      Tracker.y = 0;
+      Tracker.Map = Map.empty; }
+
+let test1 = "abbcc"
+let test2 = "dbbcc"
+
+let substringSet = Set.empty
+// we'll carry substringSet through some kind of fold via intersection
+
+// why empty? first row always empty?
+// why 25 rows? just first row, not actual grid
+let printGrid1 (map:Map<(int * int), int>) =
+    printfn "printGrid"
+    
+    seq { for x in 0 .. 5 -> 
+            printfn "here: %d" x
+            seq { for y in 0 .. 5 -> 
+                    printfn "here: %d" y
+                    let key = (x, y)
+
+                    if map.ContainsKey key
+                    then map.[key]
+                    else 0 }
+            |> Seq.iter
+                (fun item -> printf "%d " item)
+            printfn ""
+            x
+    }
+
+//let printGrid2 (map:Map<(int * int), int>) =
+//    seq { for y in 0 .. 5 -> 
+////            printfn "here: %d" y
+//            let key = (0, y)
+//
+//            if map.ContainsKey key
+//            then map.[key]
+//            else 0 }
+//    |> Seq.iter
+//        (fun item -> printf "%d " item)
+//    printfn ""
+
+
+//    seq { for y in 0 .. 5 -> 
+//            let key = (0, y)
+//
+//            if map.ContainsKey key
+//            then map.[key]
+//            else 0 }
+//    |> Seq.iter
+//        (fun item -> printf "%d " item)
+//    printfn ""
+
+let printGrid (map:Map<(int * int), int>) =
+    printfn "----------"
+    seq { for x in 0 .. 5 -> x }
+    |> Seq.iteri
+        (fun x item -> 
+            seq { for y in 0 .. 5 -> 
+                    let key = (x, y)
+
+                    if map.ContainsKey key
+                    then map.[key]
+                    else 0 }
+            |> Seq.iter
+                (fun item -> printf "%d " item)
+            printfn ">")
+//    printfn "----------"
+
+let compare acc itemOuter itemInner =
+    let interimTracker = 
+
+        if itemOuter = itemInner 
+        then 
+            let map = acc.Map
+            let originalValue = 
+                let key = (acc.x - 1, acc.y - 1)
+
+                if map.ContainsKey(key)
+                then map.[key]
+                else 0
+                            
+            let map' = map.Add((acc.x, acc.y), originalValue + 1); 
+            
+            { acc with Tracker.Map = map'; }
+        else
+            acc
+
+    { interimTracker with Tracker.x = interimTracker.x + 1; }
+
+let compareTwo left right =
+    left
+    |> Seq.fold
+        (fun accOuter outerItem ->
+            right
+            |> Seq.fold
+                (fun accInner innerItem ->
+                    printGrid accInner.Map |> ignore
+                    compare accInner outerItem innerItem)
+                accOuter
+        )
+        trackerDefault
+
+let result = compareTwo test1 test2
+result.Map.Count
+
+result.Map.[(6,0)]
+
+//
+//let compareDown (acc:Tracker) (itemOuter:char) (itemInner:char) =
+//    let rowResult = 
+//        right
+//        |> Seq.fold 
+//            (fun (accInner:Tracker) itemInner ->
+//                compareAcross accInner itemOuter itemInner
+//
+//                // now, what can do tell about index and max?
+//            )
+//            acc
+//
+//    { rowResult with Tracker.y = rowResult.y + 1; }                    
+//
+//let compareTwo (left:string) (right:string) =
+//    let substringTracker =
+//        left
+//        |> Seq.fold
+//            (fun (accOuter:Tracker) itemOuter -> 
+//                let columnResult = 
+//                    compareDown accOuter itemOuter
+////                let rowResult = 
+////                    right
+////                    |> Seq.fold 
+////                        (fun (accInner:Tracker) itemInner ->
+////                            compareAcross accInner itemOuter itemInner
+////
+////                            // now, what can do tell about index and max?
+////                        )
+////                        accOuter
+////
+////                { rowResult with Tracker.y = rowResult.y + 1; }                    
+//            )
+//            defaultTracker
+//            //            right
+//
+//    ""
+
+//let compareTwo1 (left:string) (right:string) =
+//    let substringTracker =
+//        left
+//        |> Seq.fold
+//            (fun (accOuter:SubstringTracker) itemOuter -> 
+//                right
+//                |> Seq.fold 
+//                    (fun (accInner:SubstringTracker) itemInner ->
+//                        if itemOuter = itemInner 
+//                        then 
+//                            let originalValue = 
+//                                if accInner.Map.ContainsKey((accInner.x - 1, accInner.y - 1))
+//                                then accInner.Map.[(accInner.x - 1, accInner.y - 1)]
+//                                else 0
+//                            
+//                            let updatedMap = accInner.Map.Add((accInner.x, accInner.y), originalValue + 1); 
+//            
+//                            { accInner with SubstringTracker.Map = updatedMap; }
+//                        else
+//                            // MUST INCREMENT X Y INDEX MAX
+//                            accInner
+//                    )
+//                    accOuter              
+//            
+//            
+//            )
+//            defaultSubstringTracker
+//            //            right
+//
+//    ""
+
+compareTwo test1 test2
+
+//let substringTracker = 
+//    test1
+//    |> Seq.fold 
+//        (fun acc item -> 
+//        
+//        )
+
+
+
+// we need to walk our index, max, x and y
+let substringTracker = 
+    Seq.fold2
+        (fun (acc:SubstringTracker) left right -> 
+            printfn "Examining: %c %c" left right
+
+            if left = right
+            then 
+                let originalValue = 
+                    if acc.Map.ContainsKey((acc.x - 1, acc.y - 1))
+                    then acc.Map.[(acc.x - 1, acc.y - 1)]
+                    else 0
+
+                let updatedMap = acc.Map.Add((acc.x, acc.y), originalValue + 1); 
+            
+                { acc with SubstringTracker.Map = updatedMap; }
+            else acc)
+        defaultSubstringTracker
+        test1
+        test2
+
+
+
+//
+//
+//Seq.fold2
+//    (fun (acc:SubstringTracker) left right -> 
+//        if left = right
+//        then 
+//            let updatedMap = acc.Map.Add((acc.x, acc.y), (acc.Map.[(acc.x - 1, acc.y - 1)]) + 1); 
+//            
+//            { acc with SubstringTracker.Map = updatedMap; }
+//        else acc
+//            //acc
+////            (acc.Map.Add((acc.x, acc.y), (acc.Map.[(acc.x - 1, acc.y - 1)]) + 1))
+////            { }
+//            
+//            
+//  //           acc.Map.Add((acc.x, acc.y), (acc.Map.[(acc.x - 1, acc.y - 1)]) + 1)
+//
+//
+//    )
+//    defaultSubstringTracker
+////    { 0; 0; 0; 0; Map.empty; }
+//    test1
+//    test2
+
+//            acc.Map.Add(((acc.x), (acc.y)), (acc.Map.[((acc.x) - 1, (acc.y) - 1)]) + 1)
+
+
+// we need to ensure that future substrings are within the 
+// existing set of substring matches we can NEVER ADD to the
+// set of substring matches
+// but it goes both ways, we also need to require that nothing from 
+// the existing set survives unless it is duplicated in the 
+// newly found list of substrings
+// In conclusion, this is just a hack way of saying
+//  "Set intersection" right?
+
 let (_,_,resultMap) =
     Seq.fold2
         (fun (acc:int * int * Map<int * int, int>) left right -> 
