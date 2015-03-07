@@ -43,25 +43,21 @@ let dummyFasta =
     |> Seq.head
 
 type Tracker = 
-    { Index: int; 
-      Max: int;
-      x: int;
+    { x: int;
       y: int;
-      Map: Map<int * int, int>; }
+      Substrings: Set<string>; 
+      Grid: Map<int * int, int>; }
 
 let trackerDefault = 
-    { Tracker.Index = 0;
-      Tracker.Max = 0;
-      Tracker.x = 0;
+    { Tracker.x = 0;
       Tracker.y = 0;
-      Tracker.Map = Map.empty; }
+      Tracker.Substrings = Set.empty; 
+      Tracker.Grid = Map.empty; }
 
 let test1 = "abbcc"
 let test2 = "dbbcc"
 
-let substringSet = Set.empty
-
-let printGrid (map:Map<(int * int), int>) =
+let printGrid (grid:Map<(int * int), int>) =
     printfn "----------"
     seq { for x in 0 .. 5 -> x }
     |> Seq.iteri
@@ -69,55 +65,61 @@ let printGrid (map:Map<(int * int), int>) =
             seq { for y in 0 .. 5 -> 
                     let key = (x, y)
 
-                    if map.ContainsKey key
-                    then map.[key]
+                    if grid.ContainsKey key
+                    then grid.[key]
                     else 0 }
             |> Seq.iter
                 (fun item -> printf "%d " item)
             printfn ">")
 
-let compare tracker left right =
-    let interimTracker = 
+let updateTracker tracker = 
+    let grid = tracker.Grid
+    let originalValue = 
+        let key = (tracker.x - 1, tracker.y - 1)
 
-        if left = right 
-        then 
-            let map = tracker.Map
-            let originalValue = 
-                let key = (tracker.x - 1, tracker.y - 1)
+        if grid.ContainsKey(key)
+        then grid.[key]
+        else 0
 
-                if map.ContainsKey(key)
-                then map.[key]
-                else 0
-
-//            printfn "match: %c %c %d x: %d y: %d" left right originalValue tracker.x tracker.y
-                                
-            let map' = map.Add((tracker.x, tracker.y), originalValue + 1); 
+    let grid' = grid.Add((tracker.x, tracker.y), originalValue + 1); 
             
-            { tracker with Tracker.Map = map'; }
-        else
-//            printfn "mismatch: %c %c" left right
-            tracker
+    { tracker with Tracker.Grid = grid'; }
 
-    { interimTracker with Tracker.x = interimTracker.x + 1; }
-
-let compareTwo left right =
+let compareTwo left (right:string) =
     left
     |> Seq.fold
         (fun accOuter outerItem ->
-//            printfn "outerItem: %c" outerItem
             let interimResult = 
                 right
                 |> Seq.fold
                     (fun accInner innerItem ->
-//                        printfn "innerItem: %c" innerItem
-//                        printGrid accInner.Map |> ignore
-                        compare accInner outerItem innerItem)
+                        // optionally mark match in grid
+                        let tracker' = 
+                            if outerItem = innerItem
+                            then updateTracker accInner
+                            else accInner
+
+                        let tracker'' = 
+                            // optionally add substring to tracker set
+                            if outerItem = innerItem
+                            then 
+                                let start = tracker'.x
+                                let end' = tracker'.Grid.[(tracker'.x,tracker'.y)]
+                            
+                                let theSlice = right.[start..end']
+
+                                { tracker' with Tracker.Substrings = (tracker'.Substrings.Add theSlice) }
+                            else
+                                tracker'
+
+                        // walk tracker to next location column
+                        { tracker'' with Tracker.x = tracker''.x + 1; })
                     { accOuter with Tracker.x = 0; }
-//            printGrid interimResult.Map |> ignore
+            // walk tracker to next location row
             { interimResult with Tracker.y = interimResult.y + 1; })
         trackerDefault
-
+      
 let result = compareTwo test1 test2
-result.Map.Count
 
-printGrid result.Map
+result.Substrings
+printGrid result.Grid
