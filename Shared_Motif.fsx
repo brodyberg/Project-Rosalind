@@ -103,12 +103,14 @@ let compareTwo left (right:string) =
                             // optionally add substring to tracker set
                             if outerItem = innerItem
                             then 
-                                let start = tracker'.x
-                                let end' = tracker'.Grid.[(tracker'.x,tracker'.y)]
+                                let value = tracker'.Grid.[(tracker'.x,tracker'.y)]
+                                let start = tracker'.x - value  + 1
+                                let end' = value + start - 1
                             
-                                let theSlice = right.[(start - end')..end']
+                                let theSlice = right.[start..end']
 
-                                printfn "slicing %s from here %d to here %d which is: %s" right start end' theSlice
+                                printfn "match: %c %c" outerItem innerItem
+                                printfn "slicing %s from %d to %d which is: %s" right start end' theSlice
 
                                 { tracker' with Tracker.Substrings = (tracker'.Substrings.Add theSlice) }
                             else
