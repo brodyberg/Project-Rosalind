@@ -9,23 +9,26 @@ type Tracker =
     { x: int;
       y: int;
       Substrings: Set<string>; 
-      Grid: Map<int * int, int>; } 
+      //Grid: Map<int * int, int>; } 
+      Grid: Map<int * int, (int * (char * char))>; } 
     with
-    member this.MarkMatch () =
+    member this.MarkMatch leftChar rightChar =
         let grid = this.Grid
         let originalValue = 
             let key = (this.x - 1, this.y - 1)
 
             if grid.ContainsKey(key)
-            then grid.[key]
+            then 
+                let (value,_) = grid.[key]
+                value
             else 0
 
-        let grid' = grid.Add((this.x, this.y), originalValue + 1); 
+        let grid' = grid.Add((this.x, this.y), (originalValue + 1, (leftChar, rightChar))); 
             
         { this with Tracker.Grid = grid'; }
 
     static member AddSubstring (template:string) tracker = 
-        let value = tracker.Grid.[(tracker.x,tracker.y)]
+        let (value,_) = tracker.Grid.[(tracker.x,tracker.y)]
         let start = tracker.x - value  + 1
         let end' = value + start - 1
                             
@@ -49,9 +52,11 @@ type Tracker =
 
                         if this.Grid.ContainsKey key
                         then this.Grid.[key]
-                        else 0 }
+                        else (0, ('_', '_')) }
                 |> Seq.iter
-                    (fun item -> printf "%d " item)
+                    (fun item -> 
+                        let (value,(leftChar,rightChar)) = item
+                        printf "%d (%c,%c)" value leftChar rightChar)
                 printfn ">")
 
 let trackerDefault = 
@@ -74,8 +79,8 @@ let compareTwo left (right:string) =
                         // optionally mark match in grid
                         |> (fun (tracker:Tracker) -> 
                             if outerItem = innerItem 
-                            then tracker.MarkMatch()
-                            else tracker)
+                            then tracker.MarkMatch outerItem innerItem
+                            else { tracker with Tracker.Grid = tracker.Grid.Add((tracker.x, tracker.y), (0, (outerItem, innerItem))) })
                         // optionally add substring to tracker set
                         |> (fun tracker -> 
                             if outerItem = innerItem
@@ -106,6 +111,28 @@ let result = compareTwo test1 test2
 
 let result' = compareTwo "a" "a"
 result'.PrintGrid "a"
+
+// we find both a and aa
+let resultx' = compareTwo "aa" "aa"
+resultx'.PrintGrid "aa"
+
+let r = compareTwo "ab" "ac"
+r.PrintGrid "aa"
+
+
+// we find: a b ba and baa but NOT aa
+let resulty' = compareTwo "baa" "baa"
+resulty'.PrintGrid "baa"
+
+// so, we fail to find trailing substrings only, not just substrings that
+// are also the end of the string
+
+// how about trailing substring triples: 
+let resultz' = compareTwo "aaa" "aaa"
+resultz'.PrintGrid "aaa"
+
+let resultza' = compareTwo "zaaa" "zaaa"
+resultza'.PrintGrid "zaaa"
 
 let result2 = compareTwo "ab" "xb"
 result2.PrintGrid "ab"
