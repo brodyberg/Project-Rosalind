@@ -50,6 +50,10 @@
     <None Include="Hamming.fsx" />
     <None Include="Motif.fsx" />
     <None Include="The_Second_Nucleic_Acid.fsx" />
+    <Compile Include="Fasta.fs" />
+    <None Include="Shared_Motif.fsx" />
+    <Compile Include="FastaCorpora.fs" />
+    <None Include="GC-Content2.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
